@@ -1,16 +1,55 @@
-type OwnershipTransferred @entity(immutable: true) {
+type Protocol @entity {
+  " Contract address for FriendtechShares "
   id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+
+  userCount: BigInt!
+
+  protocolRevenue: BigInt!
+}
+
+type Account @entity {
+  " address for the user "
+  id: Bytes!
+
+  " how many of the unique users own shares of this account "
+  holdersCount: BigInt!
+
+  " how many trades this account has made "
+  tradesCount: BigInt!
+
+  " total amount of shares that exist for this account "
+  shareSupply: BigInt!
+
+  " link to the holdings of this user "
+  holding: [Holding!]! @derivedFrom(field: "holder")
+
+  " link to who holds this user "
+  holders: [Holding!]! @derivedFrom(field: "subject")
+
+  " Fees earned by the account for holders trading shares "
+  accountRevenue: BigInt!
+
+  " trades made by this account "
+  trades: [Trade!]! @derivedFrom(field: "trader")
+
+  " trades of this account made by holders "
+  tradesOf: [Trade!]! @derivedFrom(field: "subject")
+}
+
+type Holding @entity {
+  id: Bytes!
+
+  holder: Account!
+
+  subject: Account!
+
+  sharesOwned: BigInt!
 }
 
 type Trade @entity(immutable: true) {
   id: Bytes!
-  trader: Bytes! # address
-  subject: Bytes! # address
+  trader: Account! # address
+  subject: Account! # address
   isBuy: Boolean! # bool
   shareAmount: BigInt! # uint256
   ethAmount: BigInt! # uint256

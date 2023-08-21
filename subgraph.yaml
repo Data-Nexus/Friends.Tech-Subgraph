@@ -3,11 +3,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: Contract
+    name: FriendtechSharesV1
     network: base
     source:
       address: "0xCF205808Ed36593aa40a44F10c7f7C2F67d4A4d4"
-      abi: Contract
+      abi: FriendtechSharesV1
       startBlock: 2430440
     mapping:
       kind: ethereum/events
@@ -17,11 +17,9 @@ dataSources:
         - OwnershipTransferred
         - Trade
       abis:
-        - name: Contract
-          file: ./abis/Contract.json
+        - name: FriendtechSharesV1
+          file: ./abis/FriendtechSharesV1.json
       eventHandlers:
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: Trade(address,address,bool,uint256,uint256,uint256,uint256,uint256)
           handler: handleTrade
-      file: ./src/contract.ts
+      file: ./src/FriendtechSharesV1.ts
