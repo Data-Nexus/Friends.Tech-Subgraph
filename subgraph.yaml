@@ -1,0 +1,27 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Contract
+    network: base
+    source:
+      address: "0xCF205808Ed36593aa40a44F10c7f7C2F67d4A4d4"
+      abi: Contract
+      startBlock: 2430440
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - OwnershipTransferred
+        - Trade
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Trade(address,address,bool,uint256,uint256,uint256,uint256,uint256)
+          handler: handleTrade
+      file: ./src/contract.ts
