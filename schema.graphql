@@ -2,9 +2,14 @@ type Protocol @entity {
   " Contract address for FriendtechShares "
   id: Bytes!
 
+  " Unique accounts for the protocol "
   userCount: BigInt!
 
+  " Total revenue owned by the protocol "
   protocolRevenue: BigInt!
+
+  " Total Trades made in the protocol "
+  totalTrades: BigInt!
 }
 
 type Account @entity {
@@ -17,8 +22,8 @@ type Account @entity {
   " how many trades this account has made "
   tradesCount: BigInt!
 
-  " total amount of shares that exist for this account "
-  shareSupply: BigInt!
+  " total amount of keys that exist for this account "
+  keySupply: BigInt!
 
   " link to the holdings of this user "
   holding: [Holding!]! @derivedFrom(field: "holder")
@@ -36,16 +41,47 @@ type Account @entity {
   tradesOf: [Trade!]! @derivedFrom(field: "subject")
 }
 
+" Relationship between 2 accounts "
 type Holding @entity {
   id: Bytes!
 
+  " The Account who purchased a share/key "
   holder: Account!
 
+  " The Account for which the key is for "
   subject: Account!
 
-  sharesOwned: BigInt!
+  " Amount of keys owned by the holder of the subject "
+  keysOwned: BigInt!
 }
 
+# Time series
+
+" time series for the day "
+type protocolDaily @entity {
+  " Contract + Day as bytes"
+  id: ID!
+
+  " Timestamp of the block / 86,400 "
+  day: BigInt!
+
+  " Monotonic sum of the unique users "
+  userCount: BigInt!
+
+  " Total protocol revenue for the day "
+  totalProtocolRevenue: BigInt!
+
+  " Total protocol revenue for the day "
+  dayProtocolRevenue: BigInt!
+
+  " Monotonic sum of protocol trades "
+  totalTrades: BigInt!
+
+  " Total trades for the day "
+  dayTrades: BigInt!
+}
+
+# EVENT Entities #
 type Trade @entity(immutable: true) {
   id: Bytes!
   trader: Account! # address

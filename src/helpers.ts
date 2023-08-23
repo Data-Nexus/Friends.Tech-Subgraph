@@ -13,7 +13,7 @@ export function GetOrCreateAccount(address: Address): Account {
     account = new Account(address);
     account.holdersCount = BIGINT_ZERO;
     account.tradesCount = BIGINT_ZERO;
-    account.shareSupply = BIGINT_ZERO;
+    account.keySupply = BIGINT_ZERO;
     account.accountRevenue = BIGINT_ZERO;
 
     protocol.save();
@@ -30,7 +30,7 @@ export function GetOrCreateHolding(holder: Account, subject: Account): Holding {
     holding = new Holding(holder.id.concat(subject.id));
     holding.holder = holder.id; // Account!
     holding.subject = subject.id; // Account!
-    holding.sharesOwned = BIGINT_ZERO; // BigInt!
+    holding.keysOwned = BIGINT_ZERO; // BigInt!
 
     holding.save();
   }
@@ -45,6 +45,7 @@ export function GetOrCreateProtocol(): Protocol {
     protocol = new Protocol(PROTOCOL);
     protocol.userCount = BIGINT_ZERO;
     protocol.protocolRevenue = BIGINT_ZERO;
+    protocol.totalTrades = BIGINT_ZERO;
 
     protocol.save();
   }
