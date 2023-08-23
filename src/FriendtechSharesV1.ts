@@ -70,18 +70,21 @@ export function handleTrade(event: TradeEvent): void {
   const day = event.block.timestamp.div(BigInt.fromI32(86400));
 
   // Collection Address - Day
-  let protocolDailyId = PROTOCOL.toString() + "-" + day.toString();
+  let protocolDailyId = PROTOCOL.toHexString() + "-" + day.toString();
 
   let dailyEntity = protocolDaily.load(protocolDailyId);
 
   if (!dailyEntity) {
     dailyEntity = new protocolDaily(protocolDailyId);
+    dailyEntity.protocol = PROTOCOL;
+    dailyEntity.day = day;
     dailyEntity.dayProtocolRevenue = BIGINT_ZERO;
     dailyEntity.totalTrades = BIGINT_ZERO;
     dailyEntity.dayTrades = BIGINT_ZERO;
   }
 
   //Add incrementors
+  dailyEntity.timestamp = event.block.timestamp;
   dailyEntity.userCount = protocol.userCount;
   dailyEntity.totalProtocolRevenue = protocol.protocolRevenue;
   dailyEntity.totalTrades = protocol.totalTrades;

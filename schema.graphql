@@ -10,6 +10,9 @@ type Protocol @entity {
 
   " Total Trades made in the protocol "
   totalTrades: BigInt!
+
+  " link to the daily timeseries for the protocol "
+  protocolDailies: [protocolDaily!]! @derivedFrom(field: "protocol")
 }
 
 type Account @entity {
@@ -64,6 +67,12 @@ type protocolDaily @entity {
 
   " Timestamp of the block / 86,400 "
   day: BigInt!
+
+  " timestamp for when this was most recently updated "
+  timestamp: BigInt!
+
+  " parent to utilize derived fields"
+  protocol: Protocol!
 
   " Monotonic sum of the unique users "
   userCount: BigInt!
