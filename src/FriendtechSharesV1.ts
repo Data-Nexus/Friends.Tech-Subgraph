@@ -1,5 +1,5 @@
 import {Trade as TradeEvent} from "../generated/FriendtechSharesV1/FriendtechSharesV1";
-import {Trade, protocolDaily, Protocol} from "../generated/schema";
+import {Trade, ProtocolDaily, Protocol} from "../generated/schema";
 import {PROTOCOL, BIGINT_ONE, BIGINT_ZERO} from "./constants";
 import {GetOrCreateAccount, GetOrCreateHolding, GetOrCreateProtocol} from "./helpers";
 import {BigInt, ethereum} from "@graphprotocol/graph-ts";
@@ -36,10 +36,20 @@ export function handleTrade(event: TradeEvent): void {
     subject.keySupply = subjectKeyupply.minus(event.params.shareAmount);
   }
 
-  // Update the revenue metric for the Account and protocol
+  // Update the revenue metric for the subject and protocol
   subject.accountRevenue = subject.accountRevenue.plus(event.params.subjectEthAmount);
   protocol.protocolRevenue = protocol.protocolRevenue.plus(event.params.protocolEthAmount);
+  protocol.accountRevenue = protocol.accountRevenue.plus(event.params.subjectEthAmount);
+  protocol.tradeVolume = protocol.tradeVolume
+    .plus(event.params.ethAmount)
+    .plus(event.params.protocolEthAmount)
+    .plus(event.params.subjectEthAmount);
   protocol.totalTrades = protocol.totalTrades.plus(BIGINT_ONE);
+
+  // update timestamp
+  protocol.timestamp = event.block.timestamp;
+  holding.timestamp = event.block.timestamp;
+  subject.timestamp = event.block.timestamp;
 
   protocol.save();
   holding.save();
@@ -63,6 +73,9 @@ export function handleTrade(event: TradeEvent): void {
   // increment traders trade counter
   trader.tradesCount = trader.tradesCount.plus(BIGINT_ONE);
 
+  // update timestamps
+  trader.timestamp = event.block.timestamp;
+
   trade.save();
   trader.save();
 
@@ -72,24 +85,34 @@ export function handleTrade(event: TradeEvent): void {
   // Collection Address - Day
   let protocolDailyId = PROTOCOL.toHexString() + "-" + day.toString();
 
-  let dailyEntity = protocolDaily.load(protocolDailyId);
+  let dailyEntity = ProtocolDaily.load(protocolDailyId);
 
   if (!dailyEntity) {
-    dailyEntity = new protocolDaily(protocolDailyId);
+    dailyEntity = new ProtocolDaily(protocolDailyId);
     dailyEntity.protocol = PROTOCOL;
     dailyEntity.day = day;
     dailyEntity.dayProtocolRevenue = BIGINT_ZERO;
-    dailyEntity.totalTrades = BIGINT_ZERO;
     dailyEntity.dayTrades = BIGINT_ZERO;
+    dailyEntity.totalTradeVolume = BIGINT_ZERO;
+    dailyEntity.dayTradeVolume = BIGINT_ZERO;
+    dailyEntity.totalAccountRevenue = BIGINT_ZERO;
+    dailyEntity.dayAccountRevenue = BIGINT_ZERO;
   }
 
   //Add incrementors
   dailyEntity.timestamp = event.block.timestamp;
   dailyEntity.userCount = protocol.userCount;
   dailyEntity.totalProtocolRevenue = protocol.protocolRevenue;
+  dailyEntity.totalAccountRevenue = protocol.accountRevenue;
+  dailyEntity.totalTradeVolume = protocol.tradeVolume;
   dailyEntity.totalTrades = protocol.totalTrades;
 
   dailyEntity.dayProtocolRevenue = dailyEntity.dayProtocolRevenue.plus(trade.protocolEthAmount);
+  dailyEntity.dayAccountRevenue = dailyEntity.dayAccountRevenue.plus(trade.subjectEthAmount);
+  dailyEntity.dayTradeVolume = dailyEntity.dayTradeVolume
+    .plus(trade.ethAmount)
+    .plus(trade.protocolEthAmount)
+    .plus(trade.subjectEthAmount);
   dailyEntity.dayTrades = dailyEntity.dayTrades.plus(BIGINT_ONE);
 
   dailyEntity.save();

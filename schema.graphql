@@ -2,22 +2,34 @@ type Protocol @entity {
   " Contract address for FriendtechShares "
   id: Bytes!
 
+  " timestamp for when this was most recently updated "
+  timestamp: BigInt!
+
   " Unique accounts for the protocol "
   userCount: BigInt!
+
+  " Trade volume for the protocol "
+  tradeVolume: BigInt!
+
+  " Total revenue owned by the accounts "
+  accountRevenue: BigInt!
 
   " Total revenue owned by the protocol "
   protocolRevenue: BigInt!
 
-  " Total Trades made in the protocol "
+  " Total Trades made in the protocol (trade + protocolRevenue + subjectRevenue) "
   totalTrades: BigInt!
 
   " link to the daily timeseries for the protocol "
-  protocolDailies: [protocolDaily!]! @derivedFrom(field: "protocol")
+  protocolDailies: [ProtocolDaily!]! @derivedFrom(field: "protocol")
 }
 
 type Account @entity {
   " address for the user "
   id: Bytes!
+
+  " timestamp for when this was most recently updated "
+  timestamp: BigInt!
 
   " how many of the unique users own shares of this account "
   holdersCount: BigInt!
@@ -48,6 +60,9 @@ type Account @entity {
 type Holding @entity {
   id: Bytes!
 
+  " timestamp for when this was most recently updated "
+  timestamp: BigInt!
+
   " The Account who purchased a share/key "
   holder: Account!
 
@@ -61,7 +76,7 @@ type Holding @entity {
 # Time series
 
 " time series for the day "
-type protocolDaily @entity {
+type ProtocolDaily @entity {
   " Contract + Day as bytes"
   id: ID!
 
@@ -76,6 +91,18 @@ type protocolDaily @entity {
 
   " Monotonic sum of the unique users "
   userCount: BigInt!
+
+  " Motonic sum of trade volume for the protocol "
+  totalTradeVolume: BigInt!
+
+  " Trade volume for the protocol for the day "
+  dayTradeVolume: BigInt!
+
+  " Motonic Total revenue owned by the accounts "
+  totalAccountRevenue: BigInt!
+
+  " Total revenue owned by the accounts for the day "
+  dayAccountRevenue: BigInt!
 
   " Total protocol revenue for the day "
   totalProtocolRevenue: BigInt!

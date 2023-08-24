@@ -11,6 +11,7 @@ export function GetOrCreateAccount(address: Address): Account {
     protocol.userCount = protocolUserCount;
 
     account = new Account(address);
+    account.timestamp = BIGINT_ZERO;
     account.holdersCount = BIGINT_ZERO;
     account.tradesCount = BIGINT_ZERO;
     account.keySupply = BIGINT_ZERO;
@@ -28,6 +29,7 @@ export function GetOrCreateHolding(holder: Account, subject: Account): Holding {
 
   if (!holding) {
     holding = new Holding(holder.id.concat(subject.id));
+    holding.timestamp = BIGINT_ZERO;
     holding.holder = holder.id; // Account!
     holding.subject = subject.id; // Account!
     holding.keysOwned = BIGINT_ZERO; // BigInt!
@@ -43,6 +45,7 @@ export function GetOrCreateProtocol(): Protocol {
 
   if (!protocol) {
     protocol = new Protocol(PROTOCOL);
+    protocol.timestamp = BIGINT_ZERO;
     protocol.userCount = BIGINT_ZERO;
     protocol.protocolRevenue = BIGINT_ZERO;
     protocol.totalTrades = BIGINT_ZERO;
